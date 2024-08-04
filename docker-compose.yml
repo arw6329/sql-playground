@@ -1,0 +1,83 @@
+services:
+    webapp:
+        build: ./webapp
+        secrets:
+            - postgres12pwd
+            - postgres13pwd
+            - postgres14pwd
+            - postgres15pwd
+            - postgres16pwd
+            - mysql8.4pwd
+            - mysql8.0pwd
+
+    postgres12:
+        image: postgres:12
+        restart: always
+        secrets:
+            - postgres12pwd
+        environment:
+            POSTGRES_PASSWORD_FILE: /run/secrets/postgres12pwd
+            PGPORT: 8000
+    postgres13:
+        image: postgres:13
+        restart: always
+        secrets:
+            - postgres13pwd
+        environment:
+            POSTGRES_PASSWORD_FILE: /run/secrets/postgres13pwd
+            PGPORT: 8000
+    postgres14:
+        image: postgres:14
+        restart: always
+        secrets:
+            - postgres14pwd
+        environment:
+            POSTGRES_PASSWORD_FILE: /run/secrets/postgres14pwd
+            PGPORT: 8000
+    postgres15:
+        image: postgres:15
+        restart: always
+        secrets:
+            - postgres15pwd
+        environment:
+            POSTGRES_PASSWORD_FILE: /run/secrets/postgres15pwd
+            PGPORT: 8000
+    postgres16:
+        image: postgres:16
+        restart: always
+        secrets:
+            - postgres16pwd
+        environment:
+            POSTGRES_PASSWORD_FILE: /run/secrets/postgres16pwd
+            PGPORT: 8000
+    
+    mysql8.4:
+        image: mysql:8.4
+        restart: always
+        secrets:
+            - mysql8.4pwd
+        environment:
+            MYSQL_ROOT_PASSWORD_FILE: /run/secrets/mysql8.4pwd
+    mysql8.0:
+        image: mysql:8.0
+        restart: always
+        secrets:
+            - mysql8.0pwd
+        environment:
+            MYSQL_ROOT_PASSWORD_FILE: /run/secrets/mysql8.0pwd
+
+secrets:
+    postgres12pwd:
+        file: secrets/postgres12pwd.txt
+    postgres13pwd:
+        file: secrets/postgres13pwd.txt
+    postgres14pwd:
+        file: secrets/postgres14pwd.txt
+    postgres15pwd:
+        file: secrets/postgres15pwd.txt
+    postgres16pwd:
+        file: secrets/postgres16pwd.txt
+    mysql8.4pwd:
+        file: secrets/mysql8.4pwd.txt
+    mysql8.0pwd:
+        file: secrets/mysql8.0pwd.txt
