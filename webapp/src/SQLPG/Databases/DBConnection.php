@@ -16,7 +16,7 @@ abstract class DBConnection {
     public abstract function cleanup();
 
     public function query(string $sql, ?array $bindParams = null) {
-        return $this->dbconn->query($sql, $bindParams);
+        return $this->dbconn->query($sql, $bindParams, false);
     }
 
     public function closeConnection() {

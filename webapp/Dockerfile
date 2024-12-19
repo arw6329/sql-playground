@@ -1,3 +1,10 @@
+FROM node
+
+WORKDIR /build
+COPY ./src/frontend /build
+
+RUN npm run build
+
 FROM trafex/php-nginx
 
 USER root
@@ -13,7 +20,9 @@ COPY ./php.ini /etc/php83/conf.d/settings.ini
 
 COPY ./src/SQLPG /var/www/php-private/SQLPG
 
+RUN rm -rf /var/www/html/*
 COPY ./src/public /var/www/html/
+COPY --from=0 /build/dist/* /var/www/html/
 
 RUN chmod -R 555 /var/www/html /var/www/php-private
 

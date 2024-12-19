@@ -12,11 +12,14 @@ class PostgresConnection extends DBConnection {
 
         $this->user = 'user'.Random::secureRandomBytesHex(12);
         $password = Random::secureRandomBytesHex(40);
+        $dbconn->query("REVOKE CREATE ON SCHEMA public FROM PUBLIC");
         $dbconn->query("CREATE USER {$this->user} WITH PASSWORD '$password'");
         $dbconn->query("CREATE DATABASE {$this->user}");
+        $dbconn->query("ALTER DATABASE {$this->user} OWNER TO {$this->user}");
         $dbconn = null;
 
-        return new PDOWrapper($this->dbhost, $this->user, $this->user, $password);
+        $dbconn = new PDOWrapper($this->dbhost, $this->user, $this->user, $password);
+        return $dbconn;
     }
 
     public function cleanup() {
