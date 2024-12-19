@@ -2,11 +2,12 @@
 
 import { ref } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faPlay } from '@fortawesome/free-solid-svg-icons'
+import { faPlay, faSpinner } from '@fortawesome/free-solid-svg-icons'
 
 const queryTray = ref()
 const dbmsInput = ref()
 const error = ref(null)
+const loading = ref(false)
 
 async function submit() {
     const elems = [...queryTray.value.querySelectorAll('query-block')]
@@ -18,24 +19,36 @@ async function submit() {
     })
 
     error.value = null
+    loading.value = true
 
-    const res = await fetch('/api/run.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            database: dbmsInput.value.value,
-            queries: elems.map(elem => elem.getQuery())
+    let data = null
+
+    try {
+        const res = await fetch('/api/run.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                database: dbmsInput.value.value,
+                queries: elems.map(elem => elem.getQuery())
+            })
         })
-    })
+
+        data = await res.json()
+    } catch(e) {
+        data = {
+            success: false,
+            error: 'Network error: ' + e
+        }
+    }
 
     elems.forEach(elem => {
         elem.locked = false
         elem.loading = false
     })
 
-    const data = await res.json()
+    loading.value = false
 
     if(!data.success) {
         error.value = data.error
@@ -71,9 +84,13 @@ async function submit() {
             </optgroup>
         </select>
         <div style="flex-grow: 1"></div>
-        <button class="run-button" title="Run worksheet" @click="submit">
+        <button v-if="!loading" class="run-button" title="Run worksheet" @click="submit">
             <FontAwesomeIcon :icon="faPlay" />
             <span>Run</span>
+        </button>
+        <button v-else class="run-button running" disabled>
+            <FontAwesomeIcon :icon="faSpinner" />
+            <span>Running...</span>
         </button>
     </header>
     <div class="info">
@@ -104,12 +121,11 @@ async function submit() {
 header {
     display: flex;
     padding: 6px 10px;
-    background-color: #ecf3ff;
+    background-color: #f6faff;
 }
 
 .run-button {
     display: flex;
-    width: 80px;
     height: 40px;
     padding: 6px 8px;
     justify-content: space-around;
@@ -125,8 +141,26 @@ header {
     font-size: 1rem;
     font-weight: bold;
     font-family: sans-serif;
-    gap: 5px;
+    gap: 9px;
     cursor: pointer;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.run-button.running {
+    background-color: yellow;
+    border-color: #949400;
+    border-right-color: #686806;
+    border-bottom-color: #686806;
+    color: #525200;
 }
 
 .run-button > * {
@@ -135,6 +169,10 @@ header {
     justify-content: center;
     align-items: center;
 }
+
+.run-button.running > svg {
+    animation: rotate linear 1.5s infinite;
+} 
 
 .info {
     padding: 0 20px;
