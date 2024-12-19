@@ -3,6 +3,7 @@ FROM node
 WORKDIR /build
 COPY ./src/frontend /build
 
+RUN npm i
 RUN npm run build
 
 FROM trafex/php-nginx
