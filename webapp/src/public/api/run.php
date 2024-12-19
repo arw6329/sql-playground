@@ -73,7 +73,9 @@ try {
 
     $results = array_map(fn($query) => [
         'query' => $query,
-        'results' => $connection->query($query)
+        'results' => $query
+            ? $connection->query($query)
+            : []
     ], $request->queries);
 
     $connection->cleanup();
