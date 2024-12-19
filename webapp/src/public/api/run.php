@@ -82,9 +82,9 @@ try {
         'success' => true,
         'results' => $results
     ]);
-} catch(Exception $e) {
+} catch(Throwable $e) {
     echo json_encode([
         'success' => false,
-        'error' => $e
+        'error' => $e->getMessage()
     ]);
 }

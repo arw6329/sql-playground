@@ -11,6 +11,8 @@ abstract class DBConnection {
         $this->dbconn = $this->createUserAndConnect();
     }
 
+    public abstract function getPDOURI(string $database): string;
+
     public abstract function createUserAndConnect(): PDOWrapper;
 
     public abstract function cleanup();

@@ -1,11 +1,12 @@
 <script setup>
 
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faPlay } from '@fortawesome/free-solid-svg-icons'
 
 const queryTray = ref()
 const dbmsInput = ref()
+const error = ref(null)
 
 async function submit() {
     const elems = [...queryTray.value.querySelectorAll('query-block')]
@@ -13,7 +14,10 @@ async function submit() {
     elems.forEach(elem => {
         elem.locked = true
         elem.loading = true
+        elem.failure = false
     })
+
+    error.value = null
 
     const res = await fetch('/api/run.php', {
         method: 'POST',
@@ -34,12 +38,16 @@ async function submit() {
     const data = await res.json()
 
     if(!data.success) {
-        throw new Error('')
-    }
+        error.value = data.error
 
-    data.results.forEach((result, i) => {
-        elems[i].results = result.results
-    })
+        elems.forEach(elem => {
+            elem.failure = true
+        })
+    } else {
+        data.results.forEach((result, i) => {
+            elems[i].results = result.results
+        })
+    }
 }
 
 </script>
@@ -58,6 +66,9 @@ async function submit() {
                 <option value="mysql8.4">MySQL 8.4</option>
                 <option value="mysql8.0">MySQL 8.0</option>
             </optgroup>
+            <optgroup label="Oracle">
+                <option value="oracle23ai">Oracle DB 23ai</option>
+            </optgroup>
         </select>
         <div style="flex-grow: 1"></div>
         <button class="run-button" title="Run worksheet" @click="submit">
@@ -70,6 +81,7 @@ async function submit() {
         <p>
             Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?
         </p>
+        <p v-if="error" class="error">Run failed with error: {{ error }}</p>
     </div>
     <div ref="queryTray">
         <query-block></query-block>
@@ -132,6 +144,17 @@ header {
 h1 {
     font-family: sans-serif;
     font-size: 1.5rem;
+}
+
+.error {
+    font-family: monospace;
+    border: 2px solid #950000;
+    color: #950000;
+    font-weight: 700;
+    font-size: 1rem;
+    background-color: #ffd6d6;
+    border-radius: 6px;
+    padding: 10px 16px;
 }
 
 </style>

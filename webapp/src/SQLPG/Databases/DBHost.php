@@ -12,17 +12,18 @@ class DBHost {
             'postgres12' => new DBHost(
                 $host,
                 8000,
-                'pgsql',
-                PostgresConnection::class,
-                false
+                PostgresConnection::class
             ),
             'mysql8.4',
             'mysql8.0' => new DBHost(
                 $host,
                 3306,
-                'mysql',
-                MySQLConnection::class,
-                false
+                MySQLConnection::class
+            ),
+            'oracle23ai' => new DBHost(
+                $host,
+                1521,
+                OracleConnection::class
             ),
             default => null
         };
@@ -35,9 +36,7 @@ class DBHost {
     private function __construct(
         public readonly string $name,
         public readonly int $port,
-        public readonly string $PDOProto,
         public readonly string $connectionClass,
-        public readonly bool $allowsMultiRowset
     ) {}
 }
 

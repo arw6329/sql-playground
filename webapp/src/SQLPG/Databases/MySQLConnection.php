@@ -7,8 +7,12 @@ use SQLPG\Utils\Random;
 class MySQLConnection extends DBConnection {
     private $user;
 
+    public function getPDOURI(string $database): string {
+        return "mysql:host={$this->dbhost->name};port={$this->dbhost->port};dbname=$database";
+    }
+
     public function createUserAndConnect(): PDOWrapper {
-        $dbconn = new PDOWrapper($this->dbhost, 'mysql', 'root', file_get_contents("/run/secrets/{$this->dbhost->name}pwd"));
+        $dbconn = new PDOWrapper($this->getPDOURI('mysql'), 'root', file_get_contents("/run/secrets/{$this->dbhost->name}pwd"), false);
 
         $this->user = 'user'.Random::secureRandomBytesHex(12);
         $password = Random::secureRandomBytesHex(40);
@@ -17,13 +21,13 @@ class MySQLConnection extends DBConnection {
         $dbconn->query("GRANT ALL PRIVILEGES ON {$this->user}.* TO {$this->user}@'%'");
         $dbconn = null;
 
-        return new PDOWrapper($this->dbhost, $this->user, $this->user, $password);
+        return new PDOWrapper($this->getPDOURI($this->user), $this->user, $password, false);
     }
 
     public function cleanup() {
         $this->closeConnection();
 
-        $dbconn = new PDOWrapper($this->dbhost, 'mysql', 'root', file_get_contents("/run/secrets/{$this->dbhost->name}pwd"));
+        $dbconn = new PDOWrapper($this->getPDOURI('mysql'), 'root', file_get_contents("/run/secrets/{$this->dbhost->name}pwd"), false);
 
         $dbconn->query("DROP DATABASE {$this->user}");
         $dbconn->query("DROP USER {$this->user}@'%'");

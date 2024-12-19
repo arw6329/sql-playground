@@ -4,10 +4,13 @@ namespace SQLPG\Databases;
 
 class PDOWrapper {
     private $pdo;
+    private $allowsMultiRowset;
 
-    function __construct(private DBHost $db, string $database, string $username, string $password) {
-        $this->pdo = new \PDO("{$db->PDOProto}:host={$db->name};port={$db->port};dbname=$database", $username, $password);
+    function __construct(private string $uri, string $username, string $password, bool $allowsMultiRowset) {
+        $this->pdo = new \PDO($uri, $username, $password);
         $this->pdo->setAttribute(\PDO::ATTR_EMULATE_PREPARES, 0);
+        $this->pdo->setAttribute(\PDO::ATTR_AUTOCOMMIT, false);
+        $this->allowsMultiRowset = $allowsMultiRowset;
     }
 
     function query(string $sql, ?array $bindParams = null, bool $throwOnError = true) {
@@ -58,7 +61,7 @@ class PDOWrapper {
                         'rows' => $stmt->fetchAll(\PDO::FETCH_NUM)
                     ]); 
                 }
-            } while($this->db->allowsMultiRowset && $stmt->nextRowset());
+            } while($this->allowsMultiRowset && $stmt->nextRowset());
 
             if(count($resultsets) > 0) {
                 return $resultsets;
@@ -69,11 +72,12 @@ class PDOWrapper {
                 ]];
             }
         } catch(\PDOException $e) {
+            $error = $this->pdo->errorInfo();
+            
             if($throwOnError) {
-                throw $e;
+                throw new \Error('error:'.$error[0].$error[1].$error[2]);
             }
 
-            $error = $this->pdo->errorInfo();
             return [[
                 'type' => 'error',
                 'error' => [

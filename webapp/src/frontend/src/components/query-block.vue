@@ -10,7 +10,7 @@ import { getCursor, setCursor } from '@/utils/cursor'
 
 hljs.registerLanguage('sql', sql);
 
-const { results, locked, loading } = defineProps({
+const { results, locked, loading, failure } = defineProps({
 	/** @type {
         ({
             type: 'resultset',
@@ -29,7 +29,8 @@ const { results, locked, loading } = defineProps({
         required: true
     },
     locked: Boolean,
-    loading: Boolean
+    loading: Boolean,
+    failure: Boolean
 })
 
 const queryInput = ref()
@@ -170,6 +171,9 @@ function updateSyntaxHighlighting(event) {
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="results" v-else-if="failure">
+                    <div class="error">[ERROR] Run failed</div>
                 </div>
                 <div class="results" v-else>
                     <template v-for="result in results">

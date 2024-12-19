@@ -7,8 +7,12 @@ use SQLPG\Utils\Random;
 class PostgresConnection extends DBConnection {
     private $user;
 
+    public function getPDOURI(string $database): string {
+        return "pgsql:host={$this->dbhost->name};port={$this->dbhost->port};dbname=$database";
+    }
+
     public function createUserAndConnect(): PDOWrapper {
-        $dbconn = new PDOWrapper($this->dbhost, 'postgres', 'postgres', file_get_contents("/run/secrets/{$this->dbhost->name}pwd"));
+        $dbconn = new PDOWrapper($this->getPDOURI('postgres'), 'postgres', file_get_contents("/run/secrets/{$this->dbhost->name}pwd"), false);
 
         $this->user = 'user'.Random::secureRandomBytesHex(12);
         $password = Random::secureRandomBytesHex(40);
@@ -18,14 +22,14 @@ class PostgresConnection extends DBConnection {
         $dbconn->query("ALTER DATABASE {$this->user} OWNER TO {$this->user}");
         $dbconn = null;
 
-        $dbconn = new PDOWrapper($this->dbhost, $this->user, $this->user, $password);
+        $dbconn = new PDOWrapper($this->getPDOURI($this->user), $this->user, $password, false);
         return $dbconn;
     }
 
     public function cleanup() {
         $this->closeConnection();
 
-        $dbconn = new PDOWrapper($this->dbhost, 'postgres', 'postgres', file_get_contents("/run/secrets/{$this->dbhost->name}pwd"));
+        $dbconn = new PDOWrapper($this->getPDOURI('postgres'), 'postgres', file_get_contents("/run/secrets/{$this->dbhost->name}pwd"), false);
 
         $dbconn->query("DROP OWNED BY {$this->user} CASCADE");
         $dbconn->query("DROP DATABASE {$this->user}");
