@@ -103,6 +103,13 @@ function updateSyntaxHighlighting(event) {
     setCursor(event.target, cursor)
 }
 
+function insertTab(event) {
+    if(event.keyCode === 9) {
+        event.preventDefault()
+        document.execCommand('insertText', false, '\u0009')
+    }
+}
+
 </script>
 
 <template>
@@ -134,7 +141,7 @@ function updateSyntaxHighlighting(event) {
                 <header>
                     <span>Query</span>
                 </header>
-                <pre class="needs-placeholder" :contenteditable="!locked" spellcheck=false ref="queryInput" @input="updateSyntaxHighlighting"></pre>
+                <pre class="needs-placeholder" :contenteditable="!locked" spellcheck=false ref="queryInput" @input="updateSyntaxHighlighting" @keydown="insertTab"></pre>
             </div>
             <div>
                 <header>
