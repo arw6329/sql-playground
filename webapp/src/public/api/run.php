@@ -1,6 +1,7 @@
 <?php
 
 use SQLPG\Databases\DBHost;
+use SQLPG\Environment\Environment;
 
 require 'vendor/autoload.php';
 
@@ -64,6 +65,14 @@ if(!$host) {
     echo json_encode([
         'success' => false,
         'error' => "Database '{$request->database}' does not exist"
+    ]);
+    exit;
+}
+
+if(!in_array($request->database, Environment::fetchEnabledDBs())) {
+    echo json_encode([
+        'success' => false,
+        'error' => "Database '{$request->database}' is not enabled"
     ]);
     exit;
 }

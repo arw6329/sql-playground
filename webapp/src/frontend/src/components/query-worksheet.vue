@@ -5,6 +5,14 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faPlay, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { autosize } from '@arw6329/autosize-textarea'
 
+const { enabledDbs } = defineProps({
+    /** @type string[] */
+    enabledDbs: {
+        type: Array,
+        required: true
+    }
+})
+
 const queryTray = ref()
 const dbmsInput = ref()
 const descriptionInput = ref()
@@ -75,19 +83,19 @@ async function submit() {
 <template>
     <header>
         <select ref="dbmsInput">
-            <optgroup label="PostgreSQL">
-                <option value="postgres16">PostgreSQL 16</option>
-                <option value="postgres15">PostgreSQL 15</option>
-                <option value="postgres14">PostgreSQL 14</option>
-                <option value="postgres13">PostgreSQL 13</option>
-                <option value="postgres12">PostgreSQL 12</option>
+            <optgroup label="PostgreSQL" v-if="enabledDbs.some(db => db.startsWith('postgres'))">
+                <option value="postgres16" v-if="enabledDbs.includes('postgres16')">PostgreSQL 16</option>
+                <option value="postgres15" v-if="enabledDbs.includes('postgres15')">PostgreSQL 15</option>
+                <option value="postgres14" v-if="enabledDbs.includes('postgres14')">PostgreSQL 14</option>
+                <option value="postgres13" v-if="enabledDbs.includes('postgres13')">PostgreSQL 13</option>
+                <option value="postgres12" v-if="enabledDbs.includes('postgres12')">PostgreSQL 12</option>
             </optgroup>
-            <optgroup label="MySQL">
-                <option value="mysql8.4">MySQL 8.4</option>
-                <option value="mysql8.0">MySQL 8.0</option>
+            <optgroup label="MySQL" v-if="enabledDbs.some(db => db.startsWith('mysql'))">
+                <option value="mysql8.4" v-if="enabledDbs.includes('mysql8.4')">MySQL 8.4</option>
+                <option value="mysql8.0" v-if="enabledDbs.includes('mysql8.0')">MySQL 8.0</option>
             </optgroup>
-            <optgroup label="Oracle">
-                <option value="oracle23ai">Oracle DB 23ai</option>
+            <optgroup label="Oracle" v-if="enabledDbs.some(db => db.startsWith('oracle'))">
+                <option value="oracle23ai" v-if="enabledDbs.includes('oracle23ai')">Oracle DB 23ai</option>
             </optgroup>
         </select>
         <div style="flex-grow: 1"></div>

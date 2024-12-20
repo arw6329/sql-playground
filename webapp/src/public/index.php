@@ -1,3 +1,10 @@
+<?php
+
+use SQLPG\Environment\Environment;
+
+require 'vendor/autoload.php';
+
+?>
 <!DOCTYPE html>
 <html>
     <head>
@@ -16,6 +23,9 @@
         <header></header>
         <main>
             <query-worksheet></query-worksheet>
+            <script>
+                document.querySelector('query-worksheet').enabledDbs = <?= json_encode(Environment::fetchEnabledDBs(), JSON_HEX_AMP | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
+            </script>
         </main>
         <script src="https://unpkg.com/vue"></script>
         <script src="/frontend.umd.js"></script>

@@ -12,6 +12,8 @@ services:
             - mysql8.4pwd
             - mysql8.0pwd
             - oracle23aipwd
+        environment:
+            - ENABLED_DBS=${ENABLED_DBS:-'*'}
 
     postgres12:
         image: postgres:12
@@ -21,6 +23,8 @@ services:
         environment:
             POSTGRES_PASSWORD_FILE: /run/secrets/postgres12pwd
             PGPORT: 8000
+        profiles:
+            - postgres12
     postgres13:
         image: postgres:13
         restart: always
@@ -29,6 +33,8 @@ services:
         environment:
             POSTGRES_PASSWORD_FILE: /run/secrets/postgres13pwd
             PGPORT: 8000
+        profiles:
+            - postgres13
     postgres14:
         image: postgres:14
         restart: always
@@ -37,6 +43,8 @@ services:
         environment:
             POSTGRES_PASSWORD_FILE: /run/secrets/postgres14pwd
             PGPORT: 8000
+        profiles:
+            - postgres14
     postgres15:
         image: postgres:15
         restart: always
@@ -45,6 +53,8 @@ services:
         environment:
             POSTGRES_PASSWORD_FILE: /run/secrets/postgres15pwd
             PGPORT: 8000
+        profiles:
+            - postgres15
     postgres16:
         image: postgres:16
         restart: always
@@ -53,6 +63,8 @@ services:
         environment:
             POSTGRES_PASSWORD_FILE: /run/secrets/postgres16pwd
             PGPORT: 8000
+        profiles:
+            - postgres16
     
     mysql8.4:
         image: mysql:8.4
@@ -61,6 +73,8 @@ services:
             - mysql8.4pwd
         environment:
             MYSQL_ROOT_PASSWORD_FILE: /run/secrets/mysql8.4pwd
+        profiles:
+            - mysql8.4
     mysql8.0:
         image: mysql:8.0
         restart: always
@@ -68,6 +82,8 @@ services:
             - mysql8.0pwd
         environment:
             MYSQL_ROOT_PASSWORD_FILE: /run/secrets/mysql8.0pwd
+        profiles:
+            - mysql8.0
 
     oracle23ai:
         image: container-registry.oracle.com/database/free:23.5.0.0
@@ -77,6 +93,8 @@ services:
               target: oracle_pwd
         environment:
             DECRYPT_PWD_FILE: decryptPasswordFixed.sh
+        profiles:
+            - oracle23ai
         configs:
             - source: oracle_set_pwd_script
               target: /opt/oracle/decryptPasswordFixed.sh
