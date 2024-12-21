@@ -15,13 +15,20 @@ const { enabledDbs } = defineProps({
 
 const queryTray = ref()
 const dbmsInput = ref()
+const titleInput = ref()
 const descriptionInput = ref()
 
 const error = ref(null)
 const loading = ref(false)
+const editingMetadata = ref(true) // starting out as true is required for autosize() to work on mount
+
+const title = ref('')
+const description = ref('')
 
 onMounted(() => {
+    autosize(titleInput.value)
     autosize(descriptionInput.value)
+    editingMetadata.value = false
 })
 
 async function submit() {
@@ -98,6 +105,9 @@ async function submit() {
                 <option value="oracle23ai" v-if="enabledDbs.includes('oracle23ai')">Oracle DB 23ai</option>
             </optgroup>
         </select>
+        <button v-show="!editingMetadata" @click="editingMetadata = true">
+            <span>Edit title and description</span>
+        </button>
         <div style="flex-grow: 1"></div>
         <button v-if="!loading" class="run-button" title="Run worksheet" @click="submit">
             <FontAwesomeIcon :icon="faPlay" />
@@ -109,12 +119,16 @@ async function submit() {
         </button>
     </header>
     <div class="info">
-        <h1>Worksheet title here - some title </h1>
-        <p>
-            Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?
-        </p>
-        <textarea ref="descriptionInput"></textarea>
-        <p v-if="error" class="error">Run failed with error: {{ error }}</p>
+        <h1 v-show="title && !editingMetadata">{{ title }}</h1>
+        <p v-show="description && !editingMetadata" style="white-space: pre-wrap">{{ description }}</p>
+        <div v-show="editingMetadata" class="edit-form">
+            <textarea ref="titleInput" placeholder="Worksheet title" class="title-input">{{ title }}</textarea>
+            <textarea ref="descriptionInput" placeholder="Description" style="min-width: 100%; max-width: 100%">{{ description }}</textarea>
+            <button @click="title = titleInput.value; description = descriptionInput.value; editingMetadata = false">
+                <span>Save</span>
+            </button>
+        </div>
+        <p v-show="error" class="error">Run failed with error: {{ error }}</p>
     </div>
     <div ref="queryTray">
         <query-block></query-block>
@@ -128,6 +142,7 @@ async function submit() {
     flex-direction: column;
     border: 2px solid cornflowerblue;
     margin: 4px;
+    font-family: sans-serif;
 }
 
 </style>
@@ -138,6 +153,7 @@ header {
     display: flex;
     padding: 6px 10px;
     background-color: #f6faff;
+    gap: 10px;
 }
 
 .run-button {
@@ -196,8 +212,30 @@ header {
 }
 
 h1 {
-    font-family: sans-serif;
     font-size: 1.5rem;
+}
+
+.edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: baseline;
+    margin: 16px 0;
+}
+
+.title-input {
+    min-width: min(400px, 100%);
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: inherit;
+}
+
+textarea {
+    font-family: inherit;
+}
+
+.edit-form button {
+    padding: 6px 12px;
 }
 
 .error {
