@@ -1,5 +1,6 @@
 services:
     webapp:
+        image: ghcr.io/arw6329/sql-playground
         build: ./webapp
         ports:
             - 12345:8080
