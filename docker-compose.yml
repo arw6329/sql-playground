@@ -13,7 +13,7 @@ services:
             - mysql8.0pwd
             - oracle23aipwd
         environment:
-            - ENABLED_DBS=${ENABLED_DBS:-'*'}
+            - ENABLED_DBS=${ENABLED_DBS:-*}
 
     postgres12:
         image: postgres:12
