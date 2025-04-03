@@ -7,6 +7,7 @@ import { faArrowDown, faArrowUp, faPlusMinus } from '@fortawesome/free-solid-svg
 import hljs from 'highlight.js/lib/core'
 import sql from 'highlight.js/lib/languages/sql'
 import { getCursor, setCursor } from '@/utils/cursor'
+import DataTable from '@/vue-components/DataTable.vue'
 
 hljs.registerLanguage('sql', sql);
 
@@ -184,18 +185,7 @@ function insertTab(event) {
                 </div>
                 <div class="results" v-else>
                     <template v-for="result in results">
-                        <div class="resultset" v-if="result.type === 'resultset'" :style="{ '--column-count': result.columns.length }">
-                            <div class="row header-row">
-                                <div class="cell" v-for="elem in result.columns">
-                                    <span>{{ elem }}</span>
-                                </div>
-                            </div>
-                            <div class="row" v-for="row in result.rows">
-                                <div class="cell" v-for="elem in row">
-                                    <span>{{ elem }}</span>
-                                </div>
-                            </div>
-                        </div>
+                        <DataTable v-if="result.type === 'resultset'" :columns="result.columns" :rows="result.rows"></DataTable>
                         <div class="message" v-else-if="result.type === 'message'">
                             {{ result.message }}
                         </div>
