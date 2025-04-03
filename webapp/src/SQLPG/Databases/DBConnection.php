@@ -15,6 +15,8 @@ abstract class DBConnection {
 
     public abstract function createUserAndConnect(): PDOWrapper;
 
+    public abstract function loadFileIntoTable(string $filePath, string $tableName);
+
     public abstract function cleanup();
 
     public function query(string $sql, ?array $bindParams = null) {
@@ -23,5 +25,9 @@ abstract class DBConnection {
 
     public function closeConnection() {
         $this->dbconn = null;
+    }
+
+    public function quote(string $string): string {
+        return $this->dbconn->quote($string);
     }
 }

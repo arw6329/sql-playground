@@ -15,6 +15,8 @@ services:
             - oracle23aipwd
         environment:
             - ENABLED_DBS=${ENABLED_DBS:-*}
+        volumes:
+            - csv_upload_storage:/csv
 
     postgres12:
         image: postgres:12
@@ -131,3 +133,6 @@ configs:
         content: 'cat /run/secrets/oracle_pwd'
     oracle_enable_omf_script:
         content: "ALTER SYSTEM SET DB_CREATE_FILE_DEST='/opt/oracle/oradata';"
+
+volumes:
+    csv_upload_storage:

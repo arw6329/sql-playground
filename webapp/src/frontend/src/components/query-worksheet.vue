@@ -53,7 +53,7 @@ async function submit() {
             },
             body: JSON.stringify({
                 database: dbmsInput.value.value,
-                queries: elems.map(elem => elem.getQuery())
+                operations: elems.map(elem => elem.getOperation())
             })
         })
 

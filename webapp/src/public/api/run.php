@@ -41,21 +41,33 @@ if(!is_string($request->database)) {
     exit;
 }
 
-if(!is_array($request->queries)) {
+if(!is_array($request->operations)) {
     echo json_encode([
         'success' => false,
-        'error' => 'Key "queries" must be array'
+        'error' => 'Key "operations" must be array'
     ]);
     exit;
 }
 
-foreach($request->queries as $query) {
-    if(!is_string($query)) {
-        echo json_encode([
-            'success' => false,
-            'error' => "Query is not a string"
-        ]);
-        exit;
+foreach($request->operations as $operation) {
+    switch($operation->type) {
+        case 'query': {
+            if(!is_string($operation->query)) {
+                echo json_encode([
+                    'success' => false,
+                    'error' => "Query is not a string"
+                ]);
+                exit;
+            }
+            break;
+        }
+        default: {
+            echo json_encode([
+                'success' => false,
+                'error' => "Operation type {$operation->type} is not recognized"
+            ]);
+            exit;
+        }
     }
 }
 
@@ -80,12 +92,11 @@ if(!in_array($request->database, Environment::fetchEnabledDBs())) {
 try {
     $connection = $host->connect();
 
-    $results = array_map(fn($query) => [
-        'query' => $query,
-        'results' => $query
-            ? $connection->query($query)
+    $results = array_map(fn($operation) => [
+        'results' => $operation->query
+            ? $connection->query($operation->query)
             : []
-    ], $request->queries);
+    ], $request->operations);
 
     $connection->cleanup();
 

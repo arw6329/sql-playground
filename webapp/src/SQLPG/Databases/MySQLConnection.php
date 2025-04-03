@@ -24,6 +24,10 @@ class MySQLConnection extends DBConnection {
         return new PDOWrapper($this->getPDOURI($this->user), $this->user, $password, false);
     }
 
+    public function loadFileIntoTable(string $filePath, string $tableName) {
+        "LOAD DATA LOCAL INFILE {$this->quote($filePath)} INTO TABLE";
+    }    
+
     public function cleanup() {
         $this->closeConnection();
 

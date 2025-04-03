@@ -88,5 +88,9 @@ class PDOWrapper {
             ]];
         }
     }
+
+    function quote(string $string): string {
+        return $this->pdo->quote($string);
+    }
 }
 

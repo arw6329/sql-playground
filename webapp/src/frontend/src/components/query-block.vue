@@ -3,7 +3,7 @@
 import { ref, onMounted } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons'
-import { faArrowDown, faArrowUp, faPlusMinus } from '@fortawesome/free-solid-svg-icons'
+import { faArrowDown, faArrowUp, faPlusMinus, faGear } from '@fortawesome/free-solid-svg-icons'
 import hljs from 'highlight.js/lib/core'
 import sql from 'highlight.js/lib/languages/sql'
 import { getCursor, setCursor } from '@/utils/cursor'
@@ -34,16 +34,32 @@ const { results, locked, loading, failure } = defineProps({
     failure: Boolean
 })
 
+const queryBlock = ref()
 const queryInput = ref()
+const moreOptionsBlock = ref()
+const moreOptionsButton = ref()
+
+const mode = ref('query')
+const moreOptions = ref(false)
 
 onMounted(() => {
-    getThis().getQuery = function() {
-        return queryInput.value.innerText
+    getThis().getOperation = function() {
+        return {
+            query: {
+                type: 'query',
+                query: queryInput.value.innerText
+            },
+            loadfile: {
+                type: 'loadfile',
+                file: null,
+                table: null
+            }
+        }[mode.value]
     }
 })
 
 function getThis() {
-    return queryInput.value.getRootNode().host
+    return queryBlock.value.getRootNode().host
 }
 
 function insertQuery(below) {
@@ -111,10 +127,16 @@ function insertTab(event) {
     }
 }
 
+function dismissMoreOptions(event) {
+    if(!moreOptionsBlock.value?.contains(event.target) && !moreOptionsButton.value?.contains(event.target)) {
+        moreOptions.value = false
+    }
+}
+
 </script>
 
 <template>
-    <div class="query-block">
+    <div class="query-block" ref="queryBlock" @click="dismissMoreOptions">
         <div class="button-column-wrapper">
             <header></header>
             <fieldset class="button-column" :disabled="locked || null">
@@ -135,6 +157,13 @@ function insertTab(event) {
                         <FontAwesomeIcon :icon="faPlusMinus" />
                     </div>
                 </button>
+                <button @click="moreOptions = true" title="More options" ref="moreOptionsButton">
+                    <FontAwesomeIcon :icon="faGear" />
+                </button>
+                <div v-if="moreOptions" class="button-column-more-options" ref="moreOptionsBlock">
+                    <button v-if="mode === 'loadfile'" @click="mode = 'query'">Switch to SQL query</button>
+                    <button v-else-if="mode === 'query'" @click="mode = 'loadfile'">Switch to LOAD TABLE</button>
+                </div>
             </fieldset>
         </div>
         <div class="main">
@@ -142,7 +171,17 @@ function insertTab(event) {
                 <header>
                     <span>Query</span>
                 </header>
-                <pre class="needs-placeholder" :contenteditable="!locked" spellcheck=false ref="queryInput" @input="updateSyntaxHighlighting" @keydown="insertTab"></pre>
+                <pre v-if="mode === 'query'" class="needs-placeholder" :contenteditable="!locked" spellcheck=false ref="queryInput" @input="updateSyntaxHighlighting" @keydown="insertTab"></pre>
+                <div v-else-if="mode === 'loadfile'" class="operation">
+                    <div class="operation-piece">
+                        <span>LOAD CSV FILE</span>
+                        <select></select>
+                    </div>
+                    <div class="operation-piece">
+                        <span>INTO TABLE</span>
+                        <input type="text">
+                    </div>
+                </div>
             </div>
             <div>
                 <header>
@@ -227,10 +266,11 @@ function insertTab(event) {
         gap: 4px;
         border: none;
         margin: 0;
+        position: relative;
     }
 
     .button-column button {
-        width: 30px;
+        min-width: 30px;
         height: 30px;
         cursor: pointer;
         display: flex;
@@ -240,6 +280,24 @@ function insertTab(event) {
         color: #222;
         background-color: #e1e1e1;
         border-radius: 3px;
+        white-space: nowrap;
+    }
+
+    .button-column-more-options {
+        position: absolute;
+        top: 5px;
+        left: calc(100% + 5px);
+        display: flex;
+        padding: 4px;
+        background: #e5e5e5;
+        border: 1px solid #bdbdbd;
+        border-radius: 3px;
+        box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .button-column-more-options button {
+        white-space: nowrap;
+        padding: 6px 12px;
     }
 
     .main {
@@ -258,7 +316,7 @@ function insertTab(event) {
     }
 
     .main > div:first-of-type {
-        width: 45%;
+        width: 40%;
         flex: 0 0 auto;
     }
 
@@ -287,6 +345,31 @@ function insertTab(event) {
         content: 'Write query here';
         color: gray;
         pointer-events: none;
+    }
+
+    .operation {
+        font-family: monospace;
+        margin: 4px;
+        font-size: 1rem;
+        padding: 12px 20px;
+        display: flex;
+        flex-wrap: wrap;
+        column-gap: 1ch;
+        row-gap: .5rem;
+    }
+
+    .operation-piece {
+        display: flex;
+        align-items: stretch;
+        gap: 1ch;
+        height: 30px;
+    }
+
+    .operation-piece span {
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
+        color: #a626a4;
     }
 
     .results {
