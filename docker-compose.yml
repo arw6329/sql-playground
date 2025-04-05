@@ -1,7 +1,7 @@
 services:
-    webapp:
-        image: ghcr.io/arw6329/sql-playground
-        build: ./webapp
+    backend:
+        image: ghcr.io/arw6329/sql-playground-backend
+        build: ./backend
         ports:
             - 12345:8080
         secrets:

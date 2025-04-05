@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 
 import { ref, onMounted } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -6,33 +6,43 @@ import { faTrashCan } from '@fortawesome/free-regular-svg-icons'
 import { faArrowDown, faArrowUp, faPlusMinus, faGear } from '@fortawesome/free-solid-svg-icons'
 import hljs from 'highlight.js/lib/core'
 import sql from 'highlight.js/lib/languages/sql'
-import { getCursor, setCursor } from '@/utils/cursor'
-import DataTable from '@/vue-components/DataTable.vue'
+import { getCursor, setCursor } from '#/utils/cursor'
+import DataTable from '#/components/DataTable.vue'
 
 hljs.registerLanguage('sql', sql);
 
-const { results, locked, loading, failure } = defineProps({
-	/** @type {
-        ({
-            type: 'resultset',
-            columns: string[],
-            rows: string[][]
-        }|{
-            type: 'error',
-            error: {
-                SQLSTATE: string,
-                driverError: integer,
-                driverErrorMsg: string
-            }
-        })[]
-    } */
-    results: {
-        required: true
-    },
-    locked: Boolean,
-    loading: Boolean,
-    failure: Boolean
-})
+const {
+    results,
+    locked,
+    loading,
+    failure,
+    onDelete,
+    onMoveUp,
+    onMoveDown,
+    onInsertBefore,
+    onInsertAfter
+} = defineProps<{
+    results: ({
+        type: 'resultset'
+        columns: string[]
+        rows: string[][]
+    } | {
+        type: 'error'
+        error: {
+            SQLSTATE: string
+            driverError: string
+            driverErrorMsg: string
+        }
+    })[]
+    locked: boolean
+    loading: boolean
+    failure: boolean
+    onDelete: () => void
+    onMoveUp: () => void
+    onMoveDown: () => void
+    onInsertBefore: () => void
+    onInsertAfter: () => void
+}>()
 
 const queryBlock = ref()
 const queryInput = ref()
@@ -43,62 +53,20 @@ const mode = ref('query')
 const moreOptions = ref(false)
 
 onMounted(() => {
-    getThis().getOperation = function() {
-        return {
-            query: {
-                type: 'query',
-                query: queryInput.value.innerText
-            },
-            loadfile: {
-                type: 'loadfile',
-                file: null,
-                table: null
-            }
-        }[mode.value]
-    }
+    // getThis().getOperation = function() {
+    //     return {
+    //         query: {
+    //             type: 'query',
+    //             query: queryInput.value.innerText
+    //         },
+    //         loadfile: {
+    //             type: 'loadfile',
+    //             file: null,
+    //             table: null
+    //         }
+    //     }[mode.value]
+    // }
 })
-
-function getThis() {
-    return queryBlock.value.getRootNode().host
-}
-
-function insertQuery(below) {
-    if(below) {
-        getThis().parentElement.insertBefore(
-            document.createElement('query-block'),
-            getThis().nextElementSibling
-        )
-    } else {
-        getThis().parentElement.insertBefore(
-            document.createElement('query-block'),
-            getThis()
-        )
-    }
-}
-
-function moveQuery(below) {
-    if(below) {
-        getThis().parentElement.insertBefore(
-            getThis(),
-            getThis().nextElementSibling?.nextElementSibling ?? null
-        )
-    } else {
-        if(getThis().previousElementSibling) {
-            getThis().parentElement.insertBefore(
-                getThis(),
-                getThis().previousElementSibling
-            )
-        }
-    }
-}
-
-function deleteQuery() {
-    if(getThis().matches(':only-of-type')) {
-        getThis().replaceWith(document.createElement('query-block'))
-    } else {
-        getThis().remove()
-    }
-}
 
 function updateSyntaxHighlighting(event) {
     const blank = event.target.innerText === '\n' || event.target.innerText === ''
@@ -140,19 +108,19 @@ function dismissMoreOptions(event) {
         <div class="button-column-wrapper">
             <header></header>
             <fieldset class="button-column" :disabled="locked || null">
-                <button @click="deleteQuery" title="Delete query">
+                <button @click="onDelete" title="Delete query">
                     <FontAwesomeIcon :icon="faTrashCan" />
                 </button>
-                <button @click="moveQuery(false)" title="Move up">
+                <button @click="onMoveUp" title="Move up">
                     <FontAwesomeIcon :icon="faArrowUp" />
                 </button>
-                <button @click="moveQuery(true)" title="Move down">
+                <button @click="onMoveDown" title="Move down">
                     <FontAwesomeIcon :icon="faArrowDown" />
                 </button>
-                <button @click="insertQuery(false)" title="Insert query above">
+                <button @click="onInsertBefore" title="Insert query above">
                     <FontAwesomeIcon :icon="faPlusMinus" />
                 </button>
-                <button @click="insertQuery(true)" title="Insert query below">
+                <button @click="onInsertAfter" title="Insert query below">
                     <div :style="{ display: 'flex', transform: 'scaleY(-1)', width: '100%' }">
                         <FontAwesomeIcon :icon="faPlusMinus" />
                     </div>

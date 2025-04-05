@@ -1,0 +1,9 @@
+---
+import QueryWorksheet from '#/components/QueryWorksheet.vue'
+import { fetchEnabledDbs } from '#/lib/enabled-dbs'
+import Layout from '../layouts/Layout.astro'
+---
+
+<Layout>
+	<QueryWorksheet enabledDbs={fetchEnabledDbs()} client:load />
+</Layout>

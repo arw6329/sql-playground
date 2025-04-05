@@ -1,0 +1,26 @@
+{
+  "name": "@arw9234/sql-worksheet-frontend",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@arw6329/autosize-textarea": "^1.1.0",
+    "@astrojs/vue": "^5.0.9",
+    "@fortawesome/free-regular-svg-icons": "^6.7.2",
+    "@fortawesome/free-solid-svg-icons": "^6.7.2",
+    "@fortawesome/vue-fontawesome": "^3.0.8",
+    "astro": "^5.5.6",
+    "datatables.net-dt": "^2.2.2",
+    "highlight.js": "^11.11.1",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "sass-embedded": "^1.86.2",
+    "vue-tsc": "^2.2.8"
+  }
+}
