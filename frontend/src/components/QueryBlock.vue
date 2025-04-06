@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons'
 import { faArrowDown, faArrowUp, faPlusMinus, faGear } from '@fortawesome/free-solid-svg-icons'
@@ -8,6 +8,9 @@ import hljs from 'highlight.js/lib/core'
 import sql from 'highlight.js/lib/languages/sql'
 import { getCursor, setCursor } from '#/utils/cursor'
 import DataTable from '#/components/DataTable.vue'
+import type { RunResult } from '#/lib/RunResult'
+import type { Operation } from '#/lib/Operation'
+import type { DOMEvent } from '#/lib/DOMEvent'
 
 hljs.registerLanguage('sql', sql);
 
@@ -16,27 +19,18 @@ const {
     locked,
     loading,
     failure,
+    onChange,
     onDelete,
     onMoveUp,
     onMoveDown,
     onInsertBefore,
     onInsertAfter
 } = defineProps<{
-    results: ({
-        type: 'resultset'
-        columns: string[]
-        rows: string[][]
-    } | {
-        type: 'error'
-        error: {
-            SQLSTATE: string
-            driverError: string
-            driverErrorMsg: string
-        }
-    })[]
+    results: RunResult[]
     locked: boolean
     loading: boolean
     failure: boolean
+    onChange: (operation: Operation) => void
     onDelete: () => void
     onMoveUp: () => void
     onMoveDown: () => void
@@ -44,31 +38,28 @@ const {
     onInsertAfter: () => void
 }>()
 
-const queryBlock = ref()
-const queryInput = ref()
 const moreOptionsBlock = ref()
 const moreOptionsButton = ref()
 
-const mode = ref('query')
-const moreOptions = ref(false)
+const mode = ref<'query' | 'loadfile'>('query')
+const moreOptions = ref<boolean>(false)
 
-onMounted(() => {
-    // getThis().getOperation = function() {
-    //     return {
-    //         query: {
-    //             type: 'query',
-    //             query: queryInput.value.innerText
-    //         },
-    //         loadfile: {
-    //             type: 'loadfile',
-    //             file: null,
-    //             table: null
-    //         }
-    //     }[mode.value]
-    // }
-})
+function handleInput(event: Event) {
+    updateSyntaxHighlighting(event)
+    onChange({
+        query: {
+            type: 'query' as const,
+            query: event.target.innerText
+        },
+        loadfile: {
+            type: 'loadfile' as const,
+            file: null,
+            table: null
+        }
+    }[mode.value])
+}
 
-function updateSyntaxHighlighting(event) {
+function updateSyntaxHighlighting(event: DOMEvent<HTMLPreElement>) {
     const blank = event.target.innerText === '\n' || event.target.innerText === ''
     if(blank) {
         event.target.innerHTML = ''
@@ -88,14 +79,14 @@ function updateSyntaxHighlighting(event) {
     setCursor(event.target, cursor)
 }
 
-function insertTab(event) {
+function insertTab(event: DOMEvent<HTMLPreElement>) {
     if(event.keyCode === 9) {
         event.preventDefault()
         document.execCommand('insertText', false, '\u0009')
     }
 }
 
-function dismissMoreOptions(event) {
+function dismissMoreOptions(event: DOMEvent<HTMLPreElement>) {
     if(!moreOptionsBlock.value?.contains(event.target) && !moreOptionsButton.value?.contains(event.target)) {
         moreOptions.value = false
     }
@@ -104,7 +95,7 @@ function dismissMoreOptions(event) {
 </script>
 
 <template>
-    <div class="query-block" ref="queryBlock" @click="dismissMoreOptions">
+    <div class="query-block" @click="dismissMoreOptions">
         <div class="button-column-wrapper">
             <header></header>
             <fieldset class="button-column" :disabled="locked || null">
@@ -139,7 +130,7 @@ function dismissMoreOptions(event) {
                 <header>
                     <span>Query</span>
                 </header>
-                <pre v-if="mode === 'query'" class="needs-placeholder" :contenteditable="!locked" spellcheck=false ref="queryInput" @input="updateSyntaxHighlighting" @keydown="insertTab"></pre>
+                <pre v-if="mode === 'query'" class="needs-placeholder" :contenteditable="!locked" spellcheck=false @input="handleInput" @keydown="insertTab"></pre>
                 <div v-else-if="mode === 'loadfile'" class="operation">
                     <div class="operation-piece">
                         <span>LOAD CSV FILE</span>
@@ -208,10 +199,6 @@ function dismissMoreOptions(event) {
 
 <style>
     @import 'highlight.js/scss/atom-one-light.scss';
-
-    :host {
-        display: flex;
-    }
 </style>
 
 <style scoped>

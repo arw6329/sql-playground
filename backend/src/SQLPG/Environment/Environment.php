@@ -21,4 +21,8 @@ class Environment {
             return explode(',', $enabledDBs);
         }
     }
+
+    static function fetchFrontendOrigin(): string {
+        return getenv('FRONTEND_ORIGIN');
+    }
 }

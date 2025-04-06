@@ -19,18 +19,15 @@ const { columns, rows } = defineProps({
 onMounted(() => {
     new DataTable(table.value, {
         columns: columns.map(column => ({ title: column })),
-        data: rows
+        data: rows,
+        order: []
     })
 })
 
 </script>
 
 <template>
-    <data-table>
-        <!-- <template shadowrootmode="closed">
-            <table ref="table" class="cell-border compact stripe hover order-column"></table>
-        </template> -->
-    </data-table>
+    <table ref="table" class="cell-border compact stripe hover order-column"></table>
 </template>
 
 <style>

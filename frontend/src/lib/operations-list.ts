@@ -1,65 +1,105 @@
+import type { Operation } from "./Operation"
+import type { RunResult } from "./RunResult"
+
+interface KeyedOperationWithResults {
+    operationId: string
+    operation: Operation
+    results: RunResult[]
+}
+
 export class OperationsList {
     constructor(
-        private operations: string[] = [ crypto.randomUUID() ]
+        private operations: KeyedOperationWithResults[] = [ this.newOperation() ]
     ) {}
 
     *[Symbol.iterator]() {
         yield* this.operations
     }
 
-    delete(operation: string) {
-        const newList = this.operations.filter(o => o !== operation)
+    delete(operationId: string) {
+        const newList = this.operations.filter(o => o.operationId !== operationId)
         if(newList.length === 0) {
-            this.operations = [ crypto.randomUUID() ]
+            this.operations = [ this.newOperation() ]
         } else {
             this.operations = newList
         }
     }
 
-    moveUp(operation: string) {
-        if(this.indexOf(operation) === 0) {
+    moveUp(operationId: string) {
+        const { index, operation } = this.getOperation(operationId)
+
+        if(index === 0) {
             // prevents -1 from appearing as param to this.operations.slice
             return
         }
 
         this.operations = [
-            ...this.operations.slice(0, this.indexOf(operation) - 1),
+            ...this.operations.slice(0, index - 1),
             operation,
-            ...this.operations.slice(this.indexOf(operation) - 1, this.indexOf(operation)),
-            ...this.operations.slice(this.indexOf(operation) + 1, this.operations.length)
+            ...this.operations.slice(index - 1, index),
+            ...this.operations.slice(index + 1, this.operations.length)
         ]
     }
 
-    moveDown(operation: string) {
+    moveDown(operationId: string) {
+        const { index, operation } = this.getOperation(operationId)
+
         this.operations = [
-            ...this.operations.slice(0, this.indexOf(operation)),
-            ...this.operations.slice(this.indexOf(operation) + 1, this.indexOf(operation) + 2),
+            ...this.operations.slice(0, index),
+            ...this.operations.slice(index + 1, index + 2),
             operation,
-            ...this.operations.slice(this.indexOf(operation) + 2, this.operations.length)
+            ...this.operations.slice(index + 2, this.operations.length)
         ]
     }
 
-    insertBefore(operation: string) {
+    insertBefore(operationId: string) {
+        const { index } = this.getOperation(operationId)
+
         this.operations = [
-            ...this.operations.slice(0, this.indexOf(operation)),
-            crypto.randomUUID(),
-            ...this.operations.slice(this.indexOf(operation), this.operations.length)
+            ...this.operations.slice(0, index),
+            this.newOperation(),
+            ...this.operations.slice(index, this.operations.length)
         ]
     }
 
-    insertAfter(operation: string) {
+    insertAfter(operationId: string) {
+        const { index } = this.getOperation(operationId)
+
         this.operations = [
-            ...this.operations.slice(0, this.indexOf(operation) + 1),
-            crypto.randomUUID(),
-            ...this.operations.slice(this.indexOf(operation) + 1, this.operations.length)
+            ...this.operations.slice(0, index + 1),
+            this.newOperation(),
+            ...this.operations.slice(index + 1, this.operations.length)
         ]
     }
 
-    private indexOf(operation: string) {
-        const index = this.operations.indexOf(operation)
+    setOperation(operationId: string, operation: Operation) {
+        const { index } = this.getOperation(operationId)
+        this.operations[index].operation = operation
+    }
+
+    setResults(index: number, results: RunResult[]) {
+        this.operations[index].results = results
+    }
+
+    private getOperation(operationId: string) {
+        const index = this.operations.findIndex(operation => operation.operationId === operationId)
         if(index === -1) {
-            throw new Error(`Operation ${operation} not found in operation list`)
+            throw new Error(`Operation ${operationId} not found in operation list`)
         }
-        return index
+        return {
+            index: index,
+            operation: this.operations[index]
+        }
+    }
+
+    private newOperation(): KeyedOperationWithResults {
+        return {
+            operationId: crypto.randomUUID(),
+            operation: {
+                type: 'query',
+                query: ''
+            },
+            results: []
+        }
     }
 }

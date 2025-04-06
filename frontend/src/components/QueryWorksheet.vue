@@ -6,18 +6,18 @@ import { faPlay, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { autosize } from '@arw6329/autosize-textarea'
 import QueryBlock from './QueryBlock.vue'
 import { OperationsList } from '#/lib/operations-list'
+import type { RunResult } from '#/lib/RunResult'
 
 const { enabledDbs } = defineProps<{
     enabledDbs: string[]
 }>()
 
-const queryTray = ref()
 const dbmsInput = ref()
 const titleInput = ref()
 const descriptionInput = ref()
 
 const operations = reactive(new OperationsList)
-const error = ref(null)
+const error = ref<string | null>(null)
 const loading = ref(false)
 const editingMetadata = ref(true) // starting out as true is required for autosize() to work on mount
 
@@ -31,18 +31,18 @@ onMounted(() => {
 })
 
 async function submit() {
-    const elems = [...queryTray.value.querySelectorAll('query-block')]
-
-    elems.forEach(elem => {
-        elem.locked = true
-        elem.loading = true
-        elem.failure = false
-    })
-
     error.value = null
     loading.value = true
 
-    let data = null
+    let data: {
+        success: true
+        results: [{
+            results: RunResult[]
+        }]
+    } | {
+        success: false
+        error: string
+    }
 
     try {
         const res = await fetch(`//${import.meta.env.PUBLIC_API_HOST}/api/run.php`, {
@@ -52,7 +52,7 @@ async function submit() {
             },
             body: JSON.stringify({
                 database: dbmsInput.value.value,
-                operations: elems.map(elem => elem.getOperation())
+                operations: [...operations].map(o => o.operation)
             })
         })
 
@@ -64,22 +64,13 @@ async function submit() {
         }
     }
 
-    elems.forEach(elem => {
-        elem.locked = false
-        elem.loading = false
-    })
-
     loading.value = false
 
     if(!data.success) {
         error.value = data.error
-
-        elems.forEach(elem => {
-            elem.failure = true
-        })
     } else {
         data.results.forEach((result, i) => {
-            elems[i].results = result.results
+            operations.setResults(i, result.results)
         })
     }
 }
@@ -130,19 +121,20 @@ async function submit() {
             </div>
             <p v-show="error" class="error">Run failed with error: {{ error }}</p>
         </div>
-        <div ref="queryTray">
+        <div>
             <QueryBlock
                 v-for="operation in operations"
-                :key="operation"
-                :onDelete="() => operations.delete(operation)"
-                :onMoveUp="() => operations.moveUp(operation)"
-                :onMoveDown="() => operations.moveDown(operation)"
-                :onInsertBefore="() => operations.insertBefore(operation)"
-                :onInsertAfter="() => operations.insertAfter(operation)"
+                :key="operation.operationId"
+                :onChange="o => operations.setOperation(operation.operationId, o)"
+                :onDelete="() => operations.delete(operation.operationId)"
+                :onMoveUp="() => operations.moveUp(operation.operationId)"
+                :onMoveDown="() => operations.moveDown(operation.operationId)"
+                :onInsertBefore="() => operations.insertBefore(operation.operationId)"
+                :onInsertAfter="() => operations.insertAfter(operation.operationId)"
                 :locked="loading"
                 :loading="loading"
-                :failure="false"
-                :results="[]"
+                :failure="error !== null"
+                :results="operation.results"
             />
         </div>
     </div>

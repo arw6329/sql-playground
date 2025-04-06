@@ -5,7 +5,7 @@ use SQLPG\Environment\Environment;
 
 require 'vendor/autoload.php';
 
-header('Content-Type: application/json');
+require 'SQLPG/middleware/api.php';
 
 if($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode([

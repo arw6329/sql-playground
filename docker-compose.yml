@@ -15,6 +15,7 @@ services:
             - oracle23aipwd
         environment:
             - ENABLED_DBS=${ENABLED_DBS:-*}
+            - FRONTEND_ORIGIN=http://localhost:4321
         volumes:
             - csv_upload_storage:/csv
 

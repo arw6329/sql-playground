@@ -4,6 +4,8 @@ use SQLPG\Utils\Random;
 
 require 'vendor/autoload.php';
 
+require 'SQLPG/middleware/api.php';
+
 if($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode([
         'success' => false,
