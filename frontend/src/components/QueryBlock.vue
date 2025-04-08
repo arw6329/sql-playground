@@ -7,10 +7,12 @@ import { faArrowDown, faArrowUp, faPlusMinus, faGear } from '@fortawesome/free-s
 import hljs from 'highlight.js/lib/core'
 import sql from 'highlight.js/lib/languages/sql'
 import { getCursor, setCursor } from '#/utils/cursor'
-import DataTable from '#/components/DataTable.vue'
+import DataTable from '#/components/data-table/DataTable.vue'
 import type { RunResult } from '#/lib/RunResult'
 import type { Operation } from '#/lib/Operation'
 import type { DOMEvent } from '#/lib/DOMEvent'
+import InfoBlock from './InfoBlock.vue'
+import LoadingDataTable from './data-table/LoadingDataTable.vue'
 
 hljs.registerLanguage('sql', sql);
 
@@ -96,41 +98,19 @@ function dismissMoreOptions(event: DOMEvent<HTMLPreElement>) {
 
 <template>
     <div class="query-block" @click="dismissMoreOptions">
-        <div class="button-column-wrapper">
-            <header></header>
-            <fieldset class="button-column" :disabled="locked || null">
-                <button @click="onDelete" title="Delete query">
-                    <FontAwesomeIcon :icon="faTrashCan" />
-                </button>
-                <button @click="onMoveUp" title="Move up">
-                    <FontAwesomeIcon :icon="faArrowUp" />
-                </button>
-                <button @click="onMoveDown" title="Move down">
-                    <FontAwesomeIcon :icon="faArrowDown" />
-                </button>
-                <button @click="onInsertBefore" title="Insert query above">
-                    <FontAwesomeIcon :icon="faPlusMinus" />
-                </button>
-                <button @click="onInsertAfter" title="Insert query below">
-                    <div :style="{ display: 'flex', transform: 'scaleY(-1)', width: '100%' }">
-                        <FontAwesomeIcon :icon="faPlusMinus" />
-                    </div>
-                </button>
-                <button @click="moreOptions = true" title="More options" ref="moreOptionsButton">
-                    <FontAwesomeIcon :icon="faGear" />
-                </button>
-                <div v-if="moreOptions" class="button-column-more-options" ref="moreOptionsBlock">
-                    <button v-if="mode === 'loadfile'" @click="mode = 'query'">Switch to SQL query</button>
-                    <button v-else-if="mode === 'query'" @click="mode = 'loadfile'">Switch to LOAD TABLE</button>
-                </div>
-            </fieldset>
-        </div>
         <div class="main">
             <div>
                 <header>
                     <span>Query</span>
                 </header>
-                <pre v-if="mode === 'query'" class="needs-placeholder" :contenteditable="!locked" spellcheck=false @input="handleInput" @keydown="insertTab"></pre>
+                <pre
+                    v-if="mode === 'query'"
+                    class="needs-placeholder"
+                    :contenteditable="!locked"
+                    spellcheck="false"
+                    @input="handleInput"
+                    @keydown="insertTab"
+                ></pre>
                 <div v-else-if="mode === 'loadfile'" class="operation">
                     <div class="operation-piece">
                         <span>LOAD CSV FILE</span>
@@ -141,55 +121,48 @@ function dismissMoreOptions(event: DOMEvent<HTMLPreElement>) {
                         <input type="text">
                     </div>
                 </div>
+                <fieldset class="button-row" :disabled="locked || null">
+                    <button @click="onDelete" title="Delete query">
+                        <FontAwesomeIcon :icon="faTrashCan" />
+                    </button>
+                    <button @click="onMoveUp" title="Move up">
+                        <FontAwesomeIcon :icon="faArrowUp" />
+                    </button>
+                    <button @click="onMoveDown" title="Move down">
+                        <FontAwesomeIcon :icon="faArrowDown" />
+                    </button>
+                    <button @click="onInsertBefore" title="Insert query above">
+                        <FontAwesomeIcon :icon="faPlusMinus" />
+                    </button>
+                    <button @click="onInsertAfter" title="Insert query below">
+                        <div :style="{ transform: 'scaleY(-1)' }">
+                            <FontAwesomeIcon :icon="faPlusMinus" />
+                        </div>
+                    </button>
+                    <button @click="moreOptions = true" title="More options" ref="moreOptionsButton">
+                        <FontAwesomeIcon :icon="faGear" />
+                    </button>
+                    <div v-if="moreOptions" class="button-row-more-options" ref="moreOptionsBlock">
+                        <button v-if="mode === 'loadfile'" @click="mode = 'query'">Switch to SQL query</button>
+                        <button v-else-if="mode === 'query'" @click="mode = 'loadfile'">Switch to LOAD TABLE</button>
+                    </div>
+                </fieldset>
             </div>
             <div>
                 <header>
                     <span>Result</span>
                 </header>
                 <div class="results" v-if="loading">
-                    <div class="resultset" :style="{ '--column-count': 3 }">
-                        <div class="row header-row">
-                            <div class="cell">
-                                <div class="loading-cell-line"></div>
-                            </div>
-                            <div class="cell">
-                                <div class="loading-cell-line"></div>
-                            </div>
-                            <div class="cell">
-                                <div class="loading-cell-line"></div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="cell">
-                                <div class="loading-cell-line">
-                                    <div class="loading-cell-line-stripe"></div>
-                                </div>
-                            </div>
-                            <div class="cell">
-                                <div class="loading-cell-line">
-                                    <div class="loading-cell-line-stripe"></div>
-                                </div>
-                            </div>
-                            <div class="cell">
-                                <div class="loading-cell-line">
-                                    <div class="loading-cell-line-stripe"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <LoadingDataTable />
                 </div>
                 <div class="results" v-else-if="failure">
-                    <div class="error">[ERROR] Run failed</div>
+                    <InfoBlock type="error" text="[ERROR] Run failed" />
                 </div>
                 <div class="results" v-else>
                     <template v-for="result in results">
                         <DataTable v-if="result.type === 'resultset'" :columns="result.columns" :rows="result.rows"></DataTable>
-                        <div class="message" v-else-if="result.type === 'message'">
-                            {{ result.message }}
-                        </div>
-                        <div class="error" v-else>
-                            {{ `[ERROR] [SQLSTATE ${result.error.SQLSTATE} DriverError ${result.error.driverError}]: ${result.error.driverErrorMsg}` }}
-                        </div>
+                        <InfoBlock v-else-if="result.type === 'message'" type="message" :text="result.message" />
+                        <InfoBlock v-else type="error" :text="`[ERROR] [SQLSTATE ${result.error.SQLSTATE} DriverError ${result.error.driverError}]: ${result.error.driverErrorMsg}`" />
                     </template>
                 </div>
             </div>
@@ -207,38 +180,34 @@ function dismissMoreOptions(event: DOMEvent<HTMLPreElement>) {
         width: 100%;
     }
 
-    .button-column-wrapper {
+    .button-row {
         display: flex;
-        flex-direction: column;
-    }
-
-    .button-column {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-evenly;
-        flex-grow: 1;
-        padding: 6px 2px;
+        padding: 6px;
         gap: 4px;
         border: none;
         margin: 0;
-        position: relative;
     }
 
-    .button-column button {
-        min-width: 30px;
-        height: 30px;
+    .button-row button {
+        width: 26px;
+        height: 26px;
         cursor: pointer;
         display: flex;
-        padding: 5px;
+        padding: 0px;
         justify-content: center;
         align-items: center;
         color: #222;
-        background-color: #e1e1e1;
-        border-radius: 3px;
+        background-color: #eeecec;
+        border-radius: 2px;
         white-space: nowrap;
+        border: 1px solid gray;
     }
 
-    .button-column-more-options {
+    .button-row button:hover {
+        background-color: #c6c6c8;
+    }
+
+    .button-row-more-options {
         position: absolute;
         top: 5px;
         left: calc(100% + 5px);
@@ -250,7 +219,7 @@ function dismissMoreOptions(event: DOMEvent<HTMLPreElement>) {
         box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.2);
     }
 
-    .button-column-more-options button {
+    .button-row-more-options button {
         white-space: nowrap;
         padding: 6px 12px;
     }
@@ -276,15 +245,15 @@ function dismissMoreOptions(event: DOMEvent<HTMLPreElement>) {
     }
 
     header {
-        background-color: #6495ed;
-        padding: 4px 10px;
+        background-color: #a4c4ff;
+        padding: 4px 10px 4px 20px;
         display: flex;
         white-space: nowrap;
         font-size: .8rem;
         color: #00163c;
         font-family: monospace;
         font-weight: 700;
-        height: 20px;
+        height: 15px;
     }
 
     pre {
@@ -296,6 +265,10 @@ function dismissMoreOptions(event: DOMEvent<HTMLPreElement>) {
         white-space: preserve-spaces;
     }
 
+    pre, pre * {
+        font-family: 'Source Code Pro', monospace;
+    }
+
     pre.needs-placeholder::before {
         content: 'Write query here';
         color: gray;
@@ -303,7 +276,7 @@ function dismissMoreOptions(event: DOMEvent<HTMLPreElement>) {
     }
 
     .operation {
-        font-family: monospace;
+        font-family: 'Source Code Pro', monospace;
         margin: 4px;
         font-size: 1rem;
         padding: 12px 20px;
@@ -337,91 +310,5 @@ function dismissMoreOptions(event: DOMEvent<HTMLPreElement>) {
         overflow-x: scroll;
         max-width: 100%;
         box-sizing: border-box;
-    }
-
-    .resultset {
-        font-family: monospace;
-        display: grid;
-        grid-template-columns: repeat(var(--column-count), auto);
-        border: 1px solid gray;
-        gap: 1px;
-        background-color: gray;
-        min-width: min-content;
-    }
-
-    .resultset .row {
-        display: contents;
-    }
-
-    .resultset .cell {
-        padding: 6px 10px;
-        background-color: white;
-    }
-
-    .resultset .header-row .cell {
-        background-color: #b7b7b7;
-    }
-
-    .loading-cell-line {
-        width: 10ch;
-        height: 1rem;
-        background-color: #b6b6b6;
-        border-radius: 6px;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .header-row .loading-cell-line {
-        background-color: #fff;
-    }
-
-    @keyframes stripe-swipe {
-        0% {
-            left: 20%;
-        }
-
-        22.2% {
-            left: 100%;
-        }
-
-        22.2001% {
-            left: -20%;
-        }
-
-        33.3% {
-            left: 20%;
-        }
-
-        100% {
-            left: 20%;
-        }
-    }
-
-    .loading-cell-line-stripe {
-        width: 20%;
-        height: 100%;
-        background-color: #c4c4c4;
-        left: 20%;
-        position: absolute;
-        transform: skewX(-20deg);
-        animation: stripe-swipe 1.2s ease-out infinite;
-    }
-
-    .error {
-        font-family: monospace;
-        border-left: 4px solid #950000;
-        color: #950000;
-        padding: 5px 0 5px 12px;
-        font-weight: bold;
-        font-size: 1rem;
-    }
-
-    .message {
-        font-family: monospace;
-        border-left: 4px solid #444;
-        color: #444;
-        padding: 5px 0 5px 12px;
-        font-weight: bold;
-        font-size: 1rem;
     }
 </style>

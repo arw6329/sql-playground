@@ -1,0 +1,67 @@
+.resultset {
+    font-family: 'Source Code Pro', monospace;
+    display: grid;
+    grid-template-columns: repeat(var(--column-count), auto);
+    border: 1px solid gray;
+    gap: 1px;
+    background-color: gray;
+    min-width: min-content;
+}
+
+.resultset .row {
+    display: contents;
+}
+
+.resultset .cell {
+    padding: 6px 10px;
+    background-color: white;
+}
+
+.resultset .header-row .cell {
+    background-color: #b7b7b7;
+}
+
+.loading-cell-line {
+    width: 10ch;
+    height: 1rem;
+    background-color: #b6b6b6;
+    border-radius: 6px;
+    position: relative;
+    overflow: hidden;
+}
+
+.header-row .loading-cell-line {
+    background-color: #fff;
+}
+
+@keyframes stripe-swipe {
+    0% {
+        left: 20%;
+    }
+
+    22.2% {
+        left: 100%;
+    }
+
+    22.2001% {
+        left: -20%;
+    }
+
+    33.3% {
+        left: 20%;
+    }
+
+    100% {
+        left: 20%;
+    }
+}
+
+.loading-cell-line-stripe {
+    width: 20%;
+    height: 100%;
+    background-color: #c4c4c4;
+    left: 20%;
+    position: absolute;
+    transform: skewX(-20deg);
+    animation: stripe-swipe 1.2s ease-out infinite;
+}

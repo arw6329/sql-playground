@@ -5,5 +5,37 @@ import Layout from '../layouts/Layout.astro'
 ---
 
 <Layout>
-	<QueryWorksheet enabledDbs={fetchEnabledDbs()} client:load />
+	<div class="page">
+		<aside>
+			<div class="title">
+				<span style="color: #005bff">SQL</span><span style="color: #535353">Worksheet</span>
+			</div>
+		</aside>
+		<QueryWorksheet enabledDbs={fetchEnabledDbs()} client:load />
+	</div>
 </Layout>
+
+<style>
+
+.page {
+	display: flex;
+	padding: 10px;
+	width: 100%;
+	gap: 10px;
+}
+
+aside {
+	padding: 0px 6px;
+}
+
+.title {
+	font-size: 20px;
+	font-weight: 300;
+	letter-spacing: -0.5px;
+	font-style: italic;
+	height: 50px;
+	display: flex;
+	align-items: center;
+}
+
+</style>

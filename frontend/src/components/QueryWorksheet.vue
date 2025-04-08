@@ -7,6 +7,7 @@ import { autosize } from '@arw6329/autosize-textarea'
 import QueryBlock from './QueryBlock.vue'
 import { OperationsList } from '#/lib/operations-list'
 import type { RunResult } from '#/lib/RunResult'
+import InfoBlock from './InfoBlock.vue'
 
 const { enabledDbs } = defineProps<{
     enabledDbs: string[]
@@ -119,7 +120,9 @@ async function submit() {
                     <span>Save</span>
                 </button>
             </div>
-            <p v-show="error" class="error">Run failed with error: {{ error }}</p>
+            <div v-show="error" style="margin: 16px 0">
+                <InfoBlock type="error" :text="`Run failed with error: ${error}`" />
+            </div>
         </div>
         <div>
             <QueryBlock
@@ -145,21 +148,28 @@ async function submit() {
 .root {
     display: flex;
     flex-direction: column;
-    border: 2px solid cornflowerblue;
-    margin: 4px;
-    font-family: sans-serif;
+    border: 2px solid #a4c4ff;
+    background-color: white;
+    width: 50%;
+    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.08);
+    overflow-y: auto;
+    flex-grow: 1;
 }
 
 header {
     display: flex;
     padding: 6px 10px;
-    background-color: #f6faff;
     gap: 10px;
+    position: sticky;
+    top: 0;
+    background-color: white;
+    border-bottom: 2px solid #a4c4ff;
+    z-index: 1;
 }
 
 .run-button {
     display: flex;
-    height: 40px;
+    height: 35px;
     padding: 6px 8px;
     justify-content: space-around;
     align-items: center;
@@ -173,9 +183,9 @@ header {
     color: #003700;
     font-size: 1rem;
     font-weight: bold;
-    font-family: sans-serif;
     gap: 9px;
     cursor: pointer;
+    box-sizing: border-box;
 }
 
 @keyframes rotate {
@@ -237,17 +247,6 @@ textarea {
 
 .edit-form button {
     padding: 6px 12px;
-}
-
-.error {
-    font-family: monospace;
-    border: 2px solid #950000;
-    color: #950000;
-    font-weight: 700;
-    font-size: 1rem;
-    background-color: #ffd6d6;
-    border-radius: 6px;
-    padding: 10px 16px;
 }
 
 </style>
