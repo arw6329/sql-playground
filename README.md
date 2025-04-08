@@ -84,3 +84,6 @@ Tables and other objects that are created during a worksheet run are ephemeral a
 - CSV file import to table/SQL queries against CSV file
 - .sql file import
 - Add option to remove worksheet sandbox and execute statements that require root/admin privileges
+- Autosave with toggle
+- Worksheet groups
+- Autosave locally to localstorage with option to recover if browser is closed before worksheet is saved
