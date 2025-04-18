@@ -84,7 +84,7 @@ function updateSyntaxHighlighting(event: DOMEvent<HTMLPreElement>) {
 function insertTab(event: DOMEvent<HTMLPreElement>) {
     if(event.keyCode === 9) {
         event.preventDefault()
-        document.execCommand('insertText', false, '\u0009')
+        document.execCommand('insertText', false, '    ')
     }
 }
 
