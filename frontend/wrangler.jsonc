@@ -1,0 +1,21 @@
+{
+    "$schema": "node_modules/wrangler/config-schema.json",
+    "name": "sql-worksheet",
+    "main": "./dist/_worker.js/index.js",
+    "compatibility_date": "2025-04-11",
+    "compatibility_flags": ["nodejs_compat"],
+    "assets": {
+      "binding": "ASSETS",
+      "directory": "./dist"
+    },
+    "observability": {
+      "enabled": true
+    },
+    "d1_databases": [
+        {
+            "binding": "AUTH_DB",
+            "database_name": "sqlworksheet-auth",
+            "database_id": "b03bde30-7a13-4790-96ac-d1bdfbf78912"
+        }
+    ]
+}

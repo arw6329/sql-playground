@@ -9,8 +9,9 @@ import { OperationsList } from '#/lib/operations-list'
 import type { RunResult } from '#/lib/RunResult'
 import InfoBlock from './InfoBlock.vue'
 
-const { enabledDbs } = defineProps<{
+const { enabledDbs, apiHost } = defineProps<{
     enabledDbs: string[]
+    apiHost: string
 }>()
 
 const dbmsInput = ref()
@@ -46,7 +47,7 @@ async function submit() {
     }
 
     try {
-        const res = await fetch(`//${import.meta.env.PUBLIC_API_HOST}/api/run.php`, {
+        const res = await fetch(`//${apiHost}/api/run.php`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
