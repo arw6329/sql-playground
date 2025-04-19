@@ -25,6 +25,11 @@ class DBHost {
                 1521,
                 OracleConnection::class
             ),
+            'oracle21c' => new DBHost(
+                $host,
+                1521,
+                OracleConnection::class
+            ),
             default => null
         };
     }

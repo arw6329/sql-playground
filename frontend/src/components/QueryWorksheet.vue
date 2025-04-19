@@ -96,6 +96,7 @@ async function submit() {
                 </optgroup>
                 <optgroup label="Oracle" v-if="enabledDbs.some(db => db.startsWith('oracle'))">
                     <option value="oracle23ai" v-if="enabledDbs.includes('oracle23ai')">Oracle DB 23ai</option>
+                    <option value="oracle21c" v-if="enabledDbs.includes('oracle21c')">Oracle DB 21c</option>
                 </optgroup>
             </select>
             <button v-show="!editingMetadata" @click="editingMetadata = true">

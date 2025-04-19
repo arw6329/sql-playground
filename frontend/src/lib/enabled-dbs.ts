@@ -10,7 +10,8 @@ export function fetchEnabledDbs(context: AstroGlobal) {
             'postgres12',
             'mysql8.4',
             'mysql8.0',
-            'oracle23ai'
+            'oracle23ai',
+            'oracle21c'
         ]
     } else {
         return context.locals.runtime.env.PUBLIC_ENABLED_DBS.split(',')

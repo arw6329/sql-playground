@@ -15,7 +15,8 @@ class Environment {
                 'postgres12',
                 'mysql8.4',
                 'mysql8.0',
-                'oracle23ai'
+                'oracle23ai',
+                'oracle21c'
             ];
         } else {
             return explode(',', $enabledDBs);

@@ -8,4 +8,5 @@ postgres16pwd
 mysql8.4pwd
 mysql8.0pwd
 oracle23aipwd
+oracle21cpwd
 A

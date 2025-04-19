@@ -28,6 +28,9 @@ def main():
     parser.add_argument(
         '--oracle23ai', action='store_true', help='Enable Oracle Database 23ai'
     )
+    parser.add_argument(
+        '--oracle21c', action='store_true', help='Enable Oracle Database 21c'
+    )
     args = parser.parse_args()
 
     enabled_dbs = [ key for key, value in vars(args).items() if value ]
