@@ -12,6 +12,7 @@ services:
             - postgres16pwd
             - mysql8.4pwd
             - mysql8.0pwd
+            - maria11.8.1pwd
             - oracle23aipwd
             - oracle21cpwd
         environment:
@@ -90,6 +91,16 @@ services:
         profiles:
             - mysql8.0
 
+    maria11.8.1:
+        image: mariadb:11.8.1-rc
+        restart: always
+        secrets:
+            - maria11.8.1pwd
+        environment:
+            MARIADB_ROOT_PASSWORD_FILE: /run/secrets/maria11.8.1pwd
+        profiles:
+            - maria11.8.1
+
     oracle23ai:
         image: container-registry.oracle.com/database/free:23.5.0.0
         restart: always
@@ -149,6 +160,8 @@ secrets:
         file: secrets/mysql8.4pwd.txt
     mysql8.0pwd:
         file: secrets/mysql8.0pwd.txt
+    maria11.8.1pwd:
+        file: secrets/maria11.8.1pwd.txt
     oracle23aipwd:
         file: secrets/oracle23aipwd.txt
     oracle21cpwd:

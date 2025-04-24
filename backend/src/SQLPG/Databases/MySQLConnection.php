@@ -5,7 +5,7 @@ namespace SQLPG\Databases;
 use SQLPG\Utils\Random;
 
 class MySQLConnection extends DBConnection {
-    private $user;
+    protected $user;
 
     public function getPDOURI(string $database): string {
         return "mysql:host={$this->dbhost->name};port={$this->dbhost->port};dbname=$database";

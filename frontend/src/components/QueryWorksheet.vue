@@ -94,6 +94,9 @@ async function submit() {
                     <option value="mysql8.4" v-if="enabledDbs.includes('mysql8.4')">MySQL 8.4</option>
                     <option value="mysql8.0" v-if="enabledDbs.includes('mysql8.0')">MySQL 8.0</option>
                 </optgroup>
+                <optgroup label="MariaDB" v-if="enabledDbs.some(db => db.startsWith('mysql'))">
+                    <option value="maria11.8.1" v-if="enabledDbs.includes('maria11.8.1')">MariaDB 11.8.1</option>
+                </optgroup>
                 <optgroup label="Oracle" v-if="enabledDbs.some(db => db.startsWith('oracle'))">
                     <option value="oracle23ai" v-if="enabledDbs.includes('oracle23ai')">Oracle DB 23ai</option>
                     <option value="oracle21c" v-if="enabledDbs.includes('oracle21c')">Oracle DB 21c</option>

@@ -7,6 +7,7 @@ postgres15pwd
 postgres16pwd
 mysql8.4pwd
 mysql8.0pwd
+maria11.8.1pwd
 oracle23aipwd
 oracle21cpwd
 A

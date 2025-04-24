@@ -15,6 +15,7 @@ class Environment {
                 'postgres12',
                 'mysql8.4',
                 'mysql8.0',
+                'maria11.8.1',
                 'oracle23ai',
                 'oracle21c'
             ];

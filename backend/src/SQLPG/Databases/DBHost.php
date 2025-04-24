@@ -20,6 +20,11 @@ class DBHost {
                 3306,
                 MySQLConnection::class
             ),
+            'maria11.8.1' => new DBHost(
+                $host,
+                3306,
+                MariaDBConnection::class
+            ),
             'oracle23ai' => new DBHost(
                 $host,
                 1521,

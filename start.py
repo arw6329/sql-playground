@@ -26,6 +26,9 @@ def main():
         '--mysql8.4', action='store_true', help='Enable MySQL 8.4 database'
     )
     parser.add_argument(
+        '--maria11.8.1', action='store_true', help='Enable MariaDB 11.8.1 database'
+    )
+    parser.add_argument(
         '--oracle23ai', action='store_true', help='Enable Oracle Database 23ai'
     )
     parser.add_argument(
