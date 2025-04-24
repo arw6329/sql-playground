@@ -26,6 +26,10 @@ class PostgresConnection extends DBConnection {
         return $dbconn;
     }
 
+    public function loadFileIntoTable(string $filePath, string $tableName) {
+        throw new \Exception('Not implemented');
+    }
+
     public function cleanup() {
         $this->closeConnection();
 

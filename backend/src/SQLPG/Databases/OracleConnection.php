@@ -32,6 +32,10 @@ class OracleConnection extends DBConnection {
         return new PDOWrapper($this->getPDOURI($this->user), $this->user, $password, false);
     }
 
+    public function loadFileIntoTable(string $filePath, string $tableName) {
+        throw new Exception('Not implemented');
+    }
+
     public function cleanup() {
         $this->closeConnection();
 
