@@ -13,6 +13,7 @@ services:
             - mysql8.4pwd
             - mysql8.0pwd
             - maria11.8.1pwd
+            - oracle23ailitepwd
             - oracle23aipwd
             - oracle21cpwd
         environment:
@@ -101,8 +102,29 @@ services:
         profiles:
             - maria11.8.1
 
+    oracle23ailite:
+        image: container-registry.oracle.com/database/free:23.8.0.0-lite
+        restart: always
+        secrets:
+            - source: oracle23ailitepwd
+              target: oracle_pwd
+        environment:
+            DECRYPT_PWD_FILE: decryptPasswordFixed.sh
+        profiles:
+            - oracle23ailite
+        configs:
+            - source: oracle_set_pwd_script
+              target: /opt/oracle/decryptPasswordFixed.sh
+              uid: '54321'
+              gid: '54321'
+              mode: 0550
+            - source: oracle_enable_omf_script
+              target: /opt/oracle/scripts/startup/enableOMF.sql
+              uid: '54321'
+              gid: '54321'
+              mode: 0444
     oracle23ai:
-        image: container-registry.oracle.com/database/free:23.5.0.0
+        image: container-registry.oracle.com/database/free:23.8.0.0
         restart: always
         secrets:
             - source: oracle23aipwd
@@ -122,7 +144,6 @@ services:
               uid: '54321'
               gid: '54321'
               mode: 0444
-        
     oracle21c:
         image: container-registry.oracle.com/database/free:23.5.0.0
         restart: always
@@ -162,6 +183,8 @@ secrets:
         file: secrets/mysql8.0pwd.txt
     maria11.8.1pwd:
         file: secrets/maria11.8.1pwd.txt
+    oracle23ailitepwd:
+        file: secrets/oracle23ailitepwd.txt
     oracle23aipwd:
         file: secrets/oracle23aipwd.txt
     oracle21cpwd:

@@ -16,6 +16,7 @@ class Environment {
                 'mysql8.4',
                 'mysql8.0',
                 'maria11.8.1',
+                'oracle23ailite',
                 'oracle23ai',
                 'oracle21c'
             ];

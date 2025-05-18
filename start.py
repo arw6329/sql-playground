@@ -29,6 +29,9 @@ def main():
         '--maria11.8.1', action='store_true', help='Enable MariaDB 11.8.1 database'
     )
     parser.add_argument(
+        '--oracle23ailite', action='store_true', help='Enable Oracle Database 23ai lite'
+    )
+    parser.add_argument(
         '--oracle23ai', action='store_true', help='Enable Oracle Database 23ai'
     )
     parser.add_argument(

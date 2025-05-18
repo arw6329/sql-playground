@@ -25,11 +25,8 @@ class DBHost {
                 3306,
                 MariaDBConnection::class
             ),
-            'oracle23ai' => new DBHost(
-                $host,
-                1521,
-                OracleConnection::class
-            ),
+            'oracle23ailite',
+            'oracle23ai',
             'oracle21c' => new DBHost(
                 $host,
                 1521,

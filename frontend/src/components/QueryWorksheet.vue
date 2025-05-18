@@ -98,6 +98,7 @@ async function submit() {
                     <option value="maria11.8.1" v-if="enabledDbs.includes('maria11.8.1')">MariaDB 11.8.1</option>
                 </optgroup>
                 <optgroup label="Oracle" v-if="enabledDbs.some(db => db.startsWith('oracle'))">
+                    <option value="oracle23ailite" v-if="enabledDbs.includes('oracle23ailite')">Oracle DB 23ai lite</option>
                     <option value="oracle23ai" v-if="enabledDbs.includes('oracle23ai')">Oracle DB 23ai</option>
                     <option value="oracle21c" v-if="enabledDbs.includes('oracle21c')">Oracle DB 21c</option>
                 </optgroup>
